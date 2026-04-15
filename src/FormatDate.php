@@ -11,7 +11,7 @@ use DateTimeImmutable;
 
 class FormatDate
 {
-    private CarbonImmutable $date;
+    private readonly CarbonImmutable $date;
 
     /**
      * @var DateFormatterInterface[]
@@ -32,11 +32,21 @@ class FormatDate
         return $this;
     }
 
+    public function remove(string $key): static
+    {
+        unset($this->formatters[$key]);
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, string>
+     */
     public function toArray(): array
     {
         return array_reduce(
             $this->formatters,
-            function (array $formatters, DateFormatterAbstract $formatter) {
+            function (array $formatters, DateFormatterInterface $formatter) {
                 $formatter->setDate($this->date);
 
                 $formatters[$formatter->getKey()] = (string) $formatter;
@@ -45,5 +55,10 @@ class FormatDate
             },
             [],
         );
+    }
+
+    public function toJson(): string
+    {
+        return json_encode($this->toArray(), JSON_THROW_ON_ERROR);
     }
 }
