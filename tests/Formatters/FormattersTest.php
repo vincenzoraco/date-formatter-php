@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
 use VincenzoRaco\FormatDate;
+use VincenzoRaco\Formatters\CookieFormatter;
 use VincenzoRaco\Formatters\DateFormatter;
 use VincenzoRaco\Formatters\DateTimeFormatter;
+use VincenzoRaco\Formatters\DateTimeLocalFormatter;
+use VincenzoRaco\Formatters\DayDateTimeFormatter;
+use VincenzoRaco\Formatters\FormattedDateFormatter;
+use VincenzoRaco\Formatters\FormattedDayDateFormatter;
 use VincenzoRaco\Formatters\Iso8601Formatter;
 use VincenzoRaco\Formatters\IsoFormatter;
 use VincenzoRaco\Formatters\Rfc1036Formatter;
@@ -15,6 +20,7 @@ use VincenzoRaco\Formatters\Rfc3339Formatter;
 use VincenzoRaco\Formatters\Rfc7231Formatter;
 use VincenzoRaco\Formatters\Rfc822Formatter;
 use VincenzoRaco\Formatters\Rfc850Formatter;
+use VincenzoRaco\Formatters\TimeFormatter;
 use VincenzoRaco\Formatters\TimestampFormatter;
 
 $date = CarbonImmutable::parse('2025-03-02 09:25:01', 'UTC');
@@ -85,6 +91,42 @@ it('formats RFC 7231 string', function () use ($date): void {
     expect($result['rfc_7231'])->toBe('Sun, 02 Mar 2025 09:25:01 GMT');
 });
 
+it('formats time string', function () use ($date): void {
+    $result = (new FormatDate($date))->add(new TimeFormatter)->toArray();
+
+    expect($result['time'])->toBe('09:25:01');
+});
+
+it('formats cookie string', function () use ($date): void {
+    $result = (new FormatDate($date))->add(new CookieFormatter)->toArray();
+
+    expect($result['cookie'])->toBe('Sunday, 02-Mar-2025 09:25:01 UTC');
+});
+
+it('formats datetime local string', function () use ($date): void {
+    $result = (new FormatDate($date))->add(new DateTimeLocalFormatter)->toArray();
+
+    expect($result['datetime_local'])->toBe('2025-03-02T09:25:01');
+});
+
+it('formats formatted date string', function () use ($date): void {
+    $result = (new FormatDate($date))->add(new FormattedDateFormatter)->toArray();
+
+    expect($result['formatted_date'])->toBe('Mar 2, 2025');
+});
+
+it('formats formatted day date string', function () use ($date): void {
+    $result = (new FormatDate($date))->add(new FormattedDayDateFormatter)->toArray();
+
+    expect($result['formatted_day_date'])->toBe('Sun, Mar 2, 2025');
+});
+
+it('formats day datetime string', function () use ($date): void {
+    $result = (new FormatDate($date))->add(new DayDateTimeFormatter)->toArray();
+
+    expect($result['day_datetime'])->toBe('Sun, Mar 2, 2025 9:25 AM');
+});
+
 it('formats timestamp string', function () use ($date): void {
     $result = (new FormatDate($date))->add(new TimestampFormatter)->toArray();
 
@@ -104,5 +146,11 @@ it('returns correct default key for each formatter', function (): void {
         ->and((new Rfc2822Formatter)->getKey())->toBe('rfc_2822')
         ->and((new Rfc3339Formatter)->getKey())->toBe('rfc_3339')
         ->and((new Rfc7231Formatter)->getKey())->toBe('rfc_7231')
-        ->and((new TimestampFormatter)->getKey())->toBe('timestamp');
+        ->and((new TimestampFormatter)->getKey())->toBe('timestamp')
+        ->and((new TimeFormatter)->getKey())->toBe('time')
+        ->and((new CookieFormatter)->getKey())->toBe('cookie')
+        ->and((new DateTimeLocalFormatter)->getKey())->toBe('datetime_local')
+        ->and((new FormattedDateFormatter)->getKey())->toBe('formatted_date')
+        ->and((new FormattedDayDateFormatter)->getKey())->toBe('formatted_day_date')
+        ->and((new DayDateTimeFormatter)->getKey())->toBe('day_datetime');
 });
