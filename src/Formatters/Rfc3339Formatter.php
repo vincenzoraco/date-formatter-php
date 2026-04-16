@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace VincenzoRaco\Formatters;
 
 use VincenzoRaco\DateFormatterAbstract;
